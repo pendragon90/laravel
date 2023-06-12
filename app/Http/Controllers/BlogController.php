@@ -4,20 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Blogs;
 
-class Blog extends Controller
+class BlogController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $blog = DB::table('tes')
-                ->select('id', 'judul', 'konten')
-                ->get();
+        $blog = Blogs::where('status', true)->withTrashed()->get();
+       
 
         $view = [
-            'datas' => $blog
+            'datas' => $blog,
         ];
 
         return view('blog/index', $view);
@@ -39,7 +39,7 @@ class Blog extends Controller
         $judul = $request->input('judul');
         $konten = $request->input('konten');
 
-       DB::table('tes')->insert([
+       Blogs::create([
             'judul' => $judul,
             'konten' => $konten
         ]);
@@ -52,13 +52,13 @@ class Blog extends Controller
      */
     public function show(string $id)
     {
-       $blog = DB::table('tes')
-        ->select('id', 'judul', 'konten')
-        ->where('id', $id)
-        ->first();
+        $blog = Blogs::where('id', $id)->first();
+       
+        $comment = $blog->comments()->get();
 
         $view = [
-            'data' => $blog
+            'data' => $blog,
+            'comments' => $comment,
         ];
 
         return view('blog/show', $view);
@@ -69,7 +69,13 @@ class Blog extends Controller
      */
     public function edit(string $id)
     {
-        return view("blog.edit");
+        $blog = Blogs::where('id', $id)->first();
+
+        $view = [
+            'datas' => $blog
+        ];
+
+        return view("blog.edit", $view);
     }
 
     /**
@@ -77,7 +83,16 @@ class Blog extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $judul = $request->input('judul');
+        $konten = $request->input('konten');
+
+        Blogs::where('id', $id)->update([
+            'judul' => $judul,
+            'konten' => $konten
+        ]);
+
+        return redirect('blog');
+    
     }
 
     /**
@@ -85,8 +100,7 @@ class Blog extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("tes")
-        ->where('id', $id)->delete();
+        Blogs::where('id', $id)->delete();
 
         return redirect("blog");
     }

@@ -13,6 +13,13 @@
             <p>{{ $data->konten }}</p>
             <a href="{{ url("blog") }}">kembali</a>
             </div> 
+        <div class="komentar">
+            @foreach ($comments as $comment)
+                <div class="kotak">
+                    <p>{{ $comment->comment }}</p>
+                </div>
+            @endforeach
+        </div>
     </div>
 </body>
 </html>
